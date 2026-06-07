@@ -1,17 +1,20 @@
 const std = @import("std");
-const config = @import("config");
+const Io = std.Io;
 
-const semver = std.SemanticVersion.parse(config.version) catch unreachable;
+extern fn fizzbuzz(n: usize) ?[*:0]const u8;
 
-extern fn foo_bar() void;
+pub fn main(init: std.process.Init) !void {
+    const io = init.io;
 
-pub fn main() !void {
-    if (semver.major < 1) {
-        @compileError("too old");
+    var buf: [1024]u8 = undefined;
+    var file_writer = Io.File.stdout().writer(io, &buf);
+    const w = &file_writer.interface;
+    for (0..100) |n| {
+        if (fizzbuzz(n)) |s| {
+            try w.print("{s}\n", .{s});
+        } else {
+            try w.print("{d}\n", .{n});
+        }
     }
-    std.debug.print("version: {s}\n", .{config.version});
-
-    if (config.have_libfoo) {
-        foo_bar();
-    }
+    try w.flush();
 }
