@@ -18,3 +18,10 @@ pub fn main(init: std.process.Init) !void {
     }
     try w.flush();
 }
+
+test "simple test" {
+    var list = std.ArrayList(i32).empty;
+    defer list.deinit(std.testing.allocator);
+    try list.append(std.testing.allocator, 42);
+    try std.testing.expectEqual(@as(i32, 42), list.pop());
+}
